@@ -34,8 +34,25 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if (header != null && header.startsWith("Bearer ")) {
             String token = header.substring(7);
-            System.out.println("Token: " + token);
+           // System.out.println("Token: " + token);
 
+            if (!jwtService.estValide(token)) {
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.getWriter().write("Token JWT invalide");
+                return;
+            }
+
+            String email = jwtService.extraireEmail(token);
+            String role = jwtService.extraireRole(token);
+
+            UsernamePasswordAuthenticationToken auth =
+                    new UsernamePasswordAuthenticationToken(
+                            email,
+                            null,
+                            List.of(new SimpleGrantedAuthority("ROLE_" + role))
+                    );
+
+            SecurityContextHolder.getContext().setAuthentication(auth);
 
 
         }
