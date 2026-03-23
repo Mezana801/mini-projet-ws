@@ -26,7 +26,8 @@ public class SecurityConfig {
                         // H2 Console
                         .requestMatchers("/h2-console/**").permitAll()
                         // Swagger
-                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**","/swagger-ui.html").permitAll()
+                        .requestMatchers("/api/auth/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .headers(headers -> headers
