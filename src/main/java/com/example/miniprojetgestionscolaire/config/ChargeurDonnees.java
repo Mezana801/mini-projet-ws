@@ -2,8 +2,10 @@ package com.example.miniprojetgestionscolaire.config;
 
 import com.example.miniprojetgestionscolaire.dto.EtudiantDTO;
 import com.example.miniprojetgestionscolaire.model.Etudiant;
+import com.example.miniprojetgestionscolaire.model.Professeur;
 import com.example.miniprojetgestionscolaire.model.Utilisateur;
 import com.example.miniprojetgestionscolaire.repository.EtudiantRepository;
+import com.example.miniprojetgestionscolaire.repository.ProfesseurRepository;
 import com.example.miniprojetgestionscolaire.repository.UtilisateurRepository;
 import com.example.miniprojetgestionscolaire.service.EtudiantService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +24,9 @@ public class ChargeurDonnees implements CommandLineRunner {
     @Autowired
     private EtudiantService etudiantService;
 
+    @Autowired
+    private ProfesseurRepository professeurRepository;
+
     @Override
     public void run(String... args) throws Exception {
 
@@ -31,11 +36,11 @@ public class ChargeurDonnees implements CommandLineRunner {
                     "Jean","admin@school.com", "admin123", "ADMIN"
             ));
 
-            utilisateurRepository.save(new Utilisateur(
+           Utilisateur mika= utilisateurRepository.save(new Utilisateur(
                     "Mika","prof.mika@school.com", "prof123", "PROFESSEUR"
             ));
 
-            utilisateurRepository.save(new Utilisateur(
+            Utilisateur michel=utilisateurRepository.save(new Utilisateur(
                     "Michel","prof.michel@school.com", "prof456", "PROFESSEUR"
             ));
 
@@ -60,6 +65,9 @@ public class ChargeurDonnees implements CommandLineRunner {
             dto2.setFiliere("Mathématiques");
             dto2.setAnneeInscription(2026);
             etudiantService.creer(dto2);
+
+            professeurRepository.save(new Professeur(mika, "Informatique", "L3"));
+            professeurRepository.save(new Professeur(michel, "Mathématiques", "M1"));
 
         }
     }
