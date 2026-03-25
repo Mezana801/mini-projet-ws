@@ -12,11 +12,15 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/etudiants")
@@ -26,6 +30,16 @@ public class EtudiantController {
 
     @Autowired
     private EtudiantService etudiantService;
+
+    private EntityModel<EtudiantDTO> toModel(EtudiantDTO dto) {
+        EntityModel<EtudiantDTO> model = EntityModel.of(dto);
+        model.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(EtudiantController.class).findById(dto.getId())).withSelfRel());
+        model.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(EtudiantController.class).findAll()).withRel("etudiants"));
+        model.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(EtudiantController.class).getInfos(dto.getId())).withRel("resume"));
+        model.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(NoteController.class).obtenirNotesEtudiant(dto.getId())).withRel("notes"));
+        model.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(InscriptionController.class).obtenirInscriptionsEtudiant(dto.getId())).withRel("inscriptions"));
+        return model;
+    }
 
     @Operation(
             summary = "Liste tous les étudiants",
@@ -37,20 +51,31 @@ public class EtudiantController {
             }
     )
     @GetMapping
-    public ResponseEntity<List<EtudiantDTO>> findAll() {
-        return ResponseEntity.ok(etudiantService.findAll());
+    public ResponseEntity<CollectionModel<EntityModel<EtudiantDTO>>> findAll() {
+        List<EntityModel<EtudiantDTO>> etudiants = etudiantService.findAll()
+                .stream()
+                .map(this::toModel)
+                .collect(Collectors.toList());
+
+        CollectionModel<EntityModel<EtudiantDTO>> collection = CollectionModel.of(etudiants);
+        collection.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(EtudiantController.class).findAll()).withSelfRel());
+        return ResponseEntity.ok(collection);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<EtudiantDTO> findById(@PathVariable Long id) {
-        return ResponseEntity.ok(etudiantService.findById(id));
+    public ResponseEntity<EntityModel<EtudiantDTO>> findById(@PathVariable Long id) {
+        return ResponseEntity.ok(toModel(etudiantService.findById(id)));
     }
 
     @GetMapping("/{id}/infos")
-    public ResponseEntity<ResumeEtudiantDTO> getInfos(@PathVariable Long id) {
-        return ResponseEntity.ok(etudiantService.obtenirResume(id));
+    public ResponseEntity<EntityModel<ResumeEtudiantDTO>> getInfos(@PathVariable Long id) {
+        ResumeEtudiantDTO resume = etudiantService.obtenirResume(id);
+        EntityModel<ResumeEtudiantDTO> model = EntityModel.of(resume);
+        model.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(EtudiantController.class).getInfos(id)).withSelfRel());
+        model.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(EtudiantController.class).findById(id)).withRel("etudiant"));
+        model.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(EtudiantController.class).findAll()).withRel("etudiants"));
+        return ResponseEntity.ok(model);
     }
-
 
     @Operation(
             summary = "Créer un étudiant",
@@ -75,17 +100,17 @@ public class EtudiantController {
             )
     )
     @PostMapping
-    public ResponseEntity<EtudiantDTO> creer(@Valid @RequestBody EtudiantDTO dto) {
+    public ResponseEntity<EntityModel<EtudiantDTO>> creer(@Valid @RequestBody EtudiantDTO dto) {
         return ResponseEntity
                 .status(201)
-                .body(etudiantService.creer(dto));
+                .body(toModel(etudiantService.creer(dto)));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<EtudiantDTO> modifier(
+    public ResponseEntity<EntityModel<EtudiantDTO>> modifier(
             @PathVariable Long id,
             @Valid @RequestBody EtudiantDTO dto) {
-        return ResponseEntity.ok(etudiantService.modifier(id, dto));
+        return ResponseEntity.ok(toModel(etudiantService.modifier(id, dto)));
     }
 
     @DeleteMapping("/{id}")
