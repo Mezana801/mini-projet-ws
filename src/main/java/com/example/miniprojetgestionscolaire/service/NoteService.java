@@ -162,4 +162,33 @@ public class NoteService {
                 .map(this::noteToDto)
                 .collect(Collectors.toList());
     }
+
+    public List<NoteDTO> obtenirToutesLesNotes() {
+
+        String role = SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getAuthorities()
+                .iterator()
+                .next()
+                .getAuthority(); // "ROLE_ADMIN" ou "ROLE_PROFESSEUR"
+
+        if (role.equals("ROLE_ADMIN")) {
+            return noteRepository.findAll()
+                    .stream()
+                    .map(this::noteToDto)
+                    .collect(Collectors.toList());
+        }
+
+        if (role.equals("ROLE_PROFESSEUR")) {
+            Professeur professeur = getProfesseurConnecte();
+
+            return noteRepository.findByClasseEtudiant(professeur.getClasseEnseignee())
+                    .stream()
+                    .map(this::noteToDto)
+                    .collect(Collectors.toList());
+        }
+
+
+        throw new RuntimeException("Accès refusé, vous n'avez pas les droits nécessaires");
+    }
 }
