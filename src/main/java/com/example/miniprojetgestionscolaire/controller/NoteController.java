@@ -90,4 +90,18 @@ public class NoteController {
             @PathVariable Long etudiantId) {
         return ResponseEntity.ok(noteService.obtenirNotesEtudiant(etudiantId));
     }
+
+    @Operation(
+            summary = "Toutes les notes",
+            description = """
+        Retourne toutes les notes selon le rôle connecté :
+        - ADMIN : Toutes les notes de tous les étudiants
+        - PROFESSEUR : Uniquement les notes de sa classe
+        - ETUDIANT : Accès refusé
+    """
+    )
+    @GetMapping
+    public ResponseEntity<List<NoteDTO>> obtenirToutesLesNotes() {
+        return ResponseEntity.ok(noteService.obtenirToutesLesNotes());
+    }
 }
