@@ -1,0 +1,832 @@
+{
+	"info": {
+		"name": "Gestion Scolaire API",
+		"description": "Collection Postman complète pour l'API REST Gestion Scolaire — MBDS 2025-2026",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8080"
+		},
+		{
+			"key": "adminToken",
+			"value": ""
+		},
+		{
+			"key": "profToken",
+			"value": ""
+		},
+		{
+			"key": "etudiantToken",
+			"value": ""
+		}
+	],
+	"item": [
+		{
+			"name": "Authentification",
+			"item": [
+				{
+					"name": "Connexion ADMIN",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if (jsonData.token) {",
+									"    pm.collectionVariables.set('adminToken', jsonData.token);",
+									"    pm.test('Token ADMIN récupéré', function () {",
+									"        pm.expect(jsonData.token).to.be.a('string');",
+									"    });",
+									"}",
+									"pm.test('Status 200', function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"admin@school.com\",\n    \"motDePasse\": \"admin123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/connexion",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "auth", "connexion"]
+						}
+					}
+				},
+				{
+					"name": "Connexion PROFESSEUR (Mika)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if (jsonData.token) {",
+									"    pm.collectionVariables.set('profToken', jsonData.token);",
+									"    pm.test('Token PROFESSEUR récupéré', function () {",
+									"        pm.expect(jsonData.token).to.be.a('string');",
+									"    });",
+									"}",
+									"pm.test('Status 200', function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"prof.mika@school.com\",\n    \"motDePasse\": \"prof123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/connexion",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "auth", "connexion"]
+						}
+					}
+				},
+				{
+					"name": "Connexion ETUDIANT (David)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if (jsonData.token) {",
+									"    pm.collectionVariables.set('etudiantToken', jsonData.token);",
+									"    pm.test('Token ETUDIANT récupéré', function () {",
+									"        pm.expect(jsonData.token).to.be.a('string');",
+									"    });",
+									"}",
+									"pm.test('Status 200', function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"etudiant.david@school.com\",\n    \"motDePasse\": \"etu123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/connexion",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "auth", "connexion"]
+						}
+					}
+				},
+				{
+					"name": "Inscription nouveau compte",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 201', function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"pm.test('Message de succès', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.message).to.eql('Compte créé avec succès');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nom\": \"Nouveau Etudiant\",\n    \"email\": \"nouveau@school.com\",\n    \"motDePasse\": \"test123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/inscription",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "auth", "inscription"]
+						}
+					}
+				},
+				{
+					"name": "Connexion - identifiants invalides",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 401', function () {",
+									"    pm.response.to.have.status(401);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"admin@school.com\",\n    \"motDePasse\": \"mauvais\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/connexion",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "auth", "connexion"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Etudiants",
+			"item": [
+				{
+					"name": "Liste tous les étudiants (ADMIN)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 200', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test('Contient des liens HATEOAS', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData._links).to.exist;",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{adminToken}}" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/etudiants",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "etudiants"]
+						}
+					}
+				},
+				{
+					"name": "Détail étudiant par ID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 200', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test('Liens HATEOAS self et notes', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData._links.self).to.exist;",
+									"    pm.expect(jsonData._links.notes).to.exist;",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{adminToken}}" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/etudiants/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "etudiants", "1"]
+						}
+					}
+				},
+				{
+					"name": "Résumé étudiant (agrégation)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 200', function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{adminToken}}" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/etudiants/1/infos",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "etudiants", "1", "infos"]
+						}
+					}
+				},
+				{
+					"name": "Modifier étudiant",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 200', function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Authorization", "value": "Bearer {{adminToken}}" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"classe\": \"M1\",\n    \"filiere\": \"Informatique\",\n    \"anneeInscription\": 2026\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/etudiants/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "etudiants", "1"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Professeurs",
+			"item": [
+				{
+					"name": "Liste tous les professeurs",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 200', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test('Contient des liens HATEOAS', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData._links).to.exist;",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{adminToken}}" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/professeurs",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "professeurs"]
+						}
+					}
+				},
+				{
+					"name": "Détail professeur par ID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 200', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test('Liens HATEOAS self', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData._links.self).to.exist;",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{adminToken}}" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/professeurs/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "professeurs", "1"]
+						}
+					}
+				},
+				{
+					"name": "Modifier professeur",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 200', function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Authorization", "value": "Bearer {{adminToken}}" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"specialite\": \"Informatique Avancée\",\n    \"classeEnseignee\": \"L3\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/professeurs/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "professeurs", "1"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Cours",
+			"item": [
+				{
+					"name": "Liste tous les cours (PUBLIC)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 200', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test('Contient des liens HATEOAS', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData._links).to.exist;",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/cours",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "cours"]
+						}
+					}
+				},
+				{
+					"name": "Détail cours par ID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 200', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test('Liens HATEOAS self et statistiques', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData._links.self).to.exist;",
+									"    pm.expect(jsonData._links.statistiques).to.exist;",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/cours/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "cours", "1"]
+						}
+					}
+				},
+				{
+					"name": "Créer un cours (PROFESSEUR)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 201', function () {",
+									"    pm.response.to.have.status(201);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Authorization", "value": "Bearer {{profToken}}" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nom\": \"Algorithmes\",\n    \"description\": \"Cours d'algorithmes et structures de données\",\n    \"credits\": 4,\n    \"professeurId\": 1\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/cours",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "cours"]
+						}
+					}
+				},
+				{
+					"name": "Modifier un cours",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 200', function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Authorization", "value": "Bearer {{adminToken}}" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nom\": \"Informatique Avancée\",\n    \"description\": \"Cours avancé d'informatique\",\n    \"credits\": 4,\n    \"professeurId\": 1\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/cours/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "cours", "1"]
+						}
+					}
+				},
+				{
+					"name": "Supprimer un cours (ADMIN)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 200', function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{adminToken}}" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/cours/3",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "cours", "3"]
+						}
+					}
+				},
+				{
+					"name": "Statistiques cours (agrégation)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 200', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test('Contient les champs statistiques', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.nomCours).to.exist;",
+									"    pm.expect(jsonData.nombreEtudiants).to.be.a('number');",
+									"    pm.expect(jsonData.moyenneClasse).to.be.a('number');",
+									"    pm.expect(jsonData.meilleureNote).to.be.a('number');",
+									"    pm.expect(jsonData.noteMinimale).to.be.a('number');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{adminToken}}" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/cours/1/statistiques",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "cours", "1", "statistiques"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Inscriptions",
+			"item": [
+				{
+					"name": "Inscrire un étudiant à un cours",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 201', function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"pm.test('Liens HATEOAS etudiant et cours', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData._links.etudiant).to.exist;",
+									"    pm.expect(jsonData._links.cours).to.exist;",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Authorization", "value": "Bearer {{adminToken}}" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"etudiantId\": 1,\n    \"coursId\": 3\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/inscriptions",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "inscriptions"]
+						}
+					}
+				},
+				{
+					"name": "Cours d'un étudiant",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 200', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test('Contient des liens HATEOAS', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData._links).to.exist;",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{adminToken}}" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/inscriptions/etudiant/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "inscriptions", "etudiant", "1"]
+						}
+					}
+				},
+				{
+					"name": "Désinscrire un étudiant",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 200', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test('Message de succès', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.message).to.include('Désinscription');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{adminToken}}" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/inscriptions/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "inscriptions", "1"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Notes",
+			"item": [
+				{
+					"name": "Ajouter une note (PROFESSEUR)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 201', function () {",
+									"    pm.response.to.have.status(201);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Authorization", "value": "Bearer {{profToken}}" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"etudiantId\": 1,\n    \"note\": 15.5,\n    \"commentaire\": \"Bon travail\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/notes",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "notes"]
+						}
+					}
+				},
+				{
+					"name": "Modifier une note (PROFESSEUR)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 200', function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Authorization", "value": "Bearer {{profToken}}" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"etudiantId\": 1,\n    \"note\": 17.0,\n    \"commentaire\": \"Excellent travail !\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/notes/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "notes", "1"]
+						}
+					}
+				},
+				{
+					"name": "Notes d'un étudiant",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 200', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test('Contient des liens HATEOAS', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData._links).to.exist;",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{profToken}}" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/notes/etudiant/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "notes", "etudiant", "1"]
+						}
+					}
+				}
+			]
+		}
+	]
+}

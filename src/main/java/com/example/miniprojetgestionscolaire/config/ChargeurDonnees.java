@@ -1,10 +1,14 @@
 package com.example.miniprojetgestionscolaire.config;
 
 import com.example.miniprojetgestionscolaire.dto.EtudiantDTO;
+import com.example.miniprojetgestionscolaire.model.Cours;
 import com.example.miniprojetgestionscolaire.model.Etudiant;
+import com.example.miniprojetgestionscolaire.model.Inscription;
 import com.example.miniprojetgestionscolaire.model.Professeur;
 import com.example.miniprojetgestionscolaire.model.Utilisateur;
+import com.example.miniprojetgestionscolaire.repository.CoursRepository;
 import com.example.miniprojetgestionscolaire.repository.EtudiantRepository;
+import com.example.miniprojetgestionscolaire.repository.InscriptionRepository;
 import com.example.miniprojetgestionscolaire.repository.ProfesseurRepository;
 import com.example.miniprojetgestionscolaire.repository.UtilisateurRepository;
 import com.example.miniprojetgestionscolaire.service.EtudiantService;
@@ -26,6 +30,12 @@ public class ChargeurDonnees implements CommandLineRunner {
 
     @Autowired
     private ProfesseurRepository professeurRepository;
+
+    @Autowired
+    private CoursRepository coursRepository;
+
+    @Autowired
+    private InscriptionRepository inscriptionRepository;
 
     @Override
     public void run(String... args) throws Exception {
@@ -66,8 +76,26 @@ public class ChargeurDonnees implements CommandLineRunner {
             dto2.setAnneeInscription(2026);
             etudiantService.creer(dto2);
 
-            professeurRepository.save(new Professeur(mika, "Informatique", "L3"));
-            professeurRepository.save(new Professeur(michel, "Mathématiques", "M1"));
+            Professeur profMika = professeurRepository.save(new Professeur(mika, "Informatique", "L3"));
+            Professeur profMichel = professeurRepository.save(new Professeur(michel, "Mathématiques", "M1"));
+
+            // Cours
+            Cours coursInfo = coursRepository.save(new Cours("Informatique", "Cours d'informatique générale", 3, profMika));
+            Cours coursMaths = coursRepository.save(new Cours("Mathématiques", "Cours de mathématiques appliquées", 3, profMichel));
+            Cours coursPhysique = coursRepository.save(new Cours("Physique", "Cours de physique fondamentale", 3, profMichel));
+
+            // Inscriptions
+            Etudiant etudiantDavid = etudiantRepository.findByUtilisateurId(david.getId()).orElse(null);
+            Etudiant etudiantMarie = etudiantRepository.findByUtilisateurId(marie.getId()).orElse(null);
+
+            if (etudiantDavid != null) {
+                inscriptionRepository.save(new Inscription(etudiantDavid, coursInfo));
+                inscriptionRepository.save(new Inscription(etudiantDavid, coursMaths));
+            }
+            if (etudiantMarie != null) {
+                inscriptionRepository.save(new Inscription(etudiantMarie, coursMaths));
+                inscriptionRepository.save(new Inscription(etudiantMarie, coursPhysique));
+            }
 
         }
     }

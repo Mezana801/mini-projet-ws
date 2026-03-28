@@ -28,8 +28,22 @@ public class SecurityConfig {
                         // Swagger
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**","/swagger-ui.html").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
+                        // Cours - GET public, POST/PUT/DELETE protégés
+                        .requestMatchers(HttpMethod.GET, "/api/cours", "/api/cours/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/cours").hasAnyRole("ADMIN", "PROFESSEUR")
+                        .requestMatchers(HttpMethod.PUT, "/api/cours/**").hasAnyRole("ADMIN", "PROFESSEUR")
+                        .requestMatchers(HttpMethod.DELETE, "/api/cours/**").hasRole("ADMIN")
+                        // Etudiants - ADMIN uniquement
                         .requestMatchers("/api/etudiants/**").hasRole("ADMIN")
-                        .requestMatchers("/api/notes").hasAnyRole("ADMIN","PROFESSEUR")
+                        // Professeurs
+                        .requestMatchers(HttpMethod.GET, "/api/professeurs", "/api/professeurs/**").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/professeurs").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/professeurs/**").hasAnyRole("ADMIN", "PROFESSEUR")
+                        .requestMatchers(HttpMethod.DELETE, "/api/professeurs/**").hasRole("ADMIN")
+                        // Notes
+                        .requestMatchers("/api/notes/**").hasAnyRole("ADMIN","PROFESSEUR")
+                        // Inscriptions
+                        .requestMatchers("/api/inscriptions/**").authenticated()
                         .anyRequest().authenticated()
                 )
                 .headers(headers -> headers

@@ -1,6 +1,5 @@
 package com.example.miniprojetgestionscolaire.controller;
 
-
 import com.example.miniprojetgestionscolaire.dto.NoteDTO;
 import com.example.miniprojetgestionscolaire.service.NoteService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -11,11 +10,14 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/notes")
@@ -25,6 +27,15 @@ public class NoteController {
 
     @Autowired
     private NoteService noteService;
+
+    private EntityModel<NoteDTO> toModel(NoteDTO dto) {
+        EntityModel<NoteDTO> model = EntityModel.of(dto);
+        model.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(NoteController.class).obtenirNotesEtudiant(dto.getEtudiantId())).withRel("notes-etudiant"));
+        if (dto.getEtudiantId() != null) {
+            model.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(EtudiantController.class).findById(dto.getEtudiantId())).withRel("etudiant"));
+        }
+        return model;
+    }
 
     @Operation(
             summary = "Ajouter une note",
@@ -48,9 +59,9 @@ public class NoteController {
             )
     )
     @PostMapping
-    public ResponseEntity<NoteDTO> ajouter(
+    public ResponseEntity<EntityModel<NoteDTO>> ajouter(
             @Valid @RequestBody NoteDTO dto) {
-        return ResponseEntity.status(201).body(noteService.ajouter(dto));
+        return ResponseEntity.status(201).body(toModel(noteService.ajouter(dto)));
     }
 
     @Operation(
@@ -75,10 +86,10 @@ public class NoteController {
             )
     )
     @PutMapping("/{id}")
-    public ResponseEntity<NoteDTO> modifier(
+    public ResponseEntity<EntityModel<NoteDTO>> modifier(
             @PathVariable Long id,
             @Valid @RequestBody NoteDTO dto) {
-        return ResponseEntity.ok(noteService.modifier(id, dto));
+        return ResponseEntity.ok(toModel(noteService.modifier(id, dto)));
     }
 
     @Operation(
@@ -86,9 +97,17 @@ public class NoteController {
             description = "Retourne les notes d'un étudiant, filtrées par classe du professeur connecté"
     )
     @GetMapping("/etudiant/{etudiantId}")
-    public ResponseEntity<List<NoteDTO>> obtenirNotesEtudiant(
+    public ResponseEntity<CollectionModel<EntityModel<NoteDTO>>> obtenirNotesEtudiant(
             @PathVariable Long etudiantId) {
-        return ResponseEntity.ok(noteService.obtenirNotesEtudiant(etudiantId));
+        List<EntityModel<NoteDTO>> notes = noteService.obtenirNotesEtudiant(etudiantId)
+                .stream()
+                .map(this::toModel)
+                .collect(Collectors.toList());
+
+        CollectionModel<EntityModel<NoteDTO>> collection = CollectionModel.of(notes);
+        collection.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(NoteController.class).obtenirNotesEtudiant(etudiantId)).withSelfRel());
+        collection.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(EtudiantController.class).findById(etudiantId)).withRel("etudiant"));
+        return ResponseEntity.ok(collection);
     }
 
     @Operation(
